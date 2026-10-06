@@ -1,0 +1,388 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Destroy Any Website - Synthwave Edition</title>
+    <meta name="description" content="Type any website's address and fight your way through it: its text, images and boxes become a destructible pixel-art level. Play solo or with friends. Free, in your browser." />
+    <meta name="theme-color" content="#2b1b3d" />
+    
+    <!-- App Icons and Manifest -->
+    <link rel="icon" type="image/png" sizes="16x16" href="/_app/favicon-16x16-4phv4t4f.png" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/_app/favicon-32x32-ehn2ggpe.png" />
+    <link rel="icon" type="image/png" sizes="96x96" href="/_app/favicon-n9zy1r36.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png" />
+    <link rel="manifest" href="manifest.json" />
+    
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-title" content="Destroy" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    
+    <style>
+        @font-face {
+            font-family: "chevyray";
+            src: url("/assets/fonts/chevyray.ttf");
+            font-display: block;
+        }
+
+        @font-face {
+            font-family: "chevyray-oeuf";
+            src: url("/assets/fonts/chevyray-oeuf.ttf");
+            font-display: block;
+        }
+
+        :root {
+            /* Synthwave Redesign Palette */
+            --white: #e2e2ff;
+            --light-gray: #b392f0;
+            --medium-gray: #6b4b9b;
+            --black: #2b1b3d;
+            --pure-black: #140c1c;
+            --blue: #00e5ff;
+            --orange: #ff007f;
+            --orange-light: #ff7eb3;
+            --orange-error: #ff3333;
+            
+            --track-height: 8px;
+            --thumb-height: 24px;
+            --thumb-width: 16px;
+            
+            /* Updated Neon Shadows */
+            --shadow-button: 0px 2px 0px 0px #b392f0 inset, 0px -2px 0px 0px #b392f0 inset, -2px 0px 0px 0px #b392f0 inset, 2px 0px 0px 0px #b392f0 inset, 0px 2px 0px 0px #140c1c, 2px 0px 0px 0px #140c1c, -2px 0px 0px 0px #140c1c, 0px -2px 0px 0px #140c1c, 0px 4px 0px 0px rgba(20, 12, 28, 0.8);
+            --shadow-window-body: 4px 6px 0px 0px rgba(20, 12, 28, 0.4), -2px 0px 0px 0px #140c1c, 2px 0px 0px 0px #140c1c, 0px -2px 0px 0px #140c1c, 0px 2px 0px 0px #140c1c, 0px 4px 0px 0px #140c1c, 0px -2px 0px 0px #b392f0 inset, 0px 2px 0px 0px #b392f0 inset, -2px 0px 0px 0px #b392f0 inset, 2px 0px 0px 0px #b392f0 inset;
+            --shadow-window-head: 0px 2px 0px 0px #b392f0 inset, -2px 0px 0px 0px #b392f0 inset, 2px 0px 0px 0px #b392f0 inset;
+            --shadow-input: -2px 0px 0px 0px #140c1c, 2px 0px 0px 0px #140c1c, 0px -2px 0px 0px #140c1c, 0px 2px 0px 0px #140c1c;
+            --shadow-inner-pannel: -2px 0px 0px 0px #0a060e, 2px 0px 0px 0px #0a060e, 0px -2px 0px 0px #0a060e, 0px 2px 0px 0px #0a060e, 0px -2px 0px 0px #140c1c inset, 0px 2px 0px 0px #140c1c inset, -2px 0px 0px 0px #140c1c inset, 2px 0px 0px 0px #140c1c inset;
+            --shadow-blue: -2px 0px 0px 0px #140c1c, 2px 0px 0px 0px #140c1c, 0px -2px 0px 0px #140c1c, 0px 2px 0px 0px #140c1c, -2px 0px 0px 0px #00e5ff inset, 2px 0px 0px 0px #00e5ff inset, 0px -2px 0px 0px #00e5ff inset, 0px 2px 0px 0px #00e5ff inset;
+        }
+
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            border: 0 solid;
+        }
+
+        img, svg, canvas { display: block; }
+        button, input {
+            font: inherit;
+            color: inherit;
+            background: transparent;
+            letter-spacing: inherit;
+        }
+        button { cursor: pointer; }
+        a { color: inherit; text-decoration: inherit; }
+        html, body { height: 100%; }
+
+        body {
+            font-family: chevyray, "Courier New", ui-monospace, monospace;
+            font-size: 16px;
+            line-height: 20.48px;
+            color: var(--white);
+            background: var(--pure-black);
+            overflow: hidden;
+            user-select: none;
+        }
+
+        p { padding-top: 4px; }
+        .app { height: 100%; display: flex; }
+
+        .window {
+            flex: 1;
+            min-width: 0;
+            min-height: 0;
+            display: flex;
+            flex-direction: column;
+            background: var(--black);
+            box-shadow: var(--shadow-window-body);
+        }
+
+        .window-head {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+            padding: 6px 8px;
+            background: var(--medium-gray);
+            box-shadow: var(--shadow-window-head);
+        }
+
+        .window-body {
+            flex: 1;
+            min-height: 0;
+            display: flex;
+            padding: 6px;
+        }
+
+        .head-left, .head-right {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .head-title {
+            display: flex;
+            align-items: baseline;
+            gap: 8px;
+            font-weight: normal;
+            font-size: 16px;
+        }
+
+        .head-title .name {
+            font-family: chevyray-oeuf, chevyray, monospace;
+            font-size: 24px;
+            line-height: 1;
+            position: relative;
+            top: 2px;
+            color: var(--blue);
+            text-shadow: 1px 1px 0px var(--orange);
+        }
+
+        .head-title .by { color: #a0a0a0; }
+        .head-title a {
+            text-decoration: underline;
+            text-underline-offset: 3px;
+            text-decoration-thickness: 2px;
+        }
+        .head-title a.name { text-decoration: none; }
+        .head-title a:hover { color: #ffffff; }
+
+        .btn {
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
+            align-items: center;
+            padding: 6px 8px;
+            background: var(--medium-gray);
+            box-shadow: var(--shadow-button);
+        }
+
+        .btn:hover { background: var(--light-gray); }
+        .btn:focus { outline: none; }
+        .btn>span {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+        .btn img {
+            width: 20px;
+            height: 20px;
+            image-rendering: pixelated;
+        }
+        a.btn { color: inherit; text-decoration: none; }
+        .btn img.discord { width: 20px; height: 15px; }
+        #btn-discord { align-self: stretch; }
+
+        .tag {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 8px;
+            font-size: 14px;
+            box-shadow: var(--shadow-input);
+        }
+        .tag:hover { background: var(--medium-gray); }
+        .tag>span { margin-top: 3px; }
+
+        .stage {
+            position: relative;
+            flex: 1;
+            min-width: 0;
+            min-height: 0;
+            overflow: hidden;
+            background: var(--pure-black) url('synth-back.png') center/cover no-repeat;
+            box-shadow: var(--shadow-inner-pannel);
+        }
+
+        #game {
+            position: absolute;
+            left: 2px;
+            top: 2px;
+            image-rendering: pixelated;
+        }
+
+        .stage.playing:not(.waiting),
+        .stage.playing:not(.waiting) * {
+            cursor: none !important;
+        }
+
+        #ui {
+            position: absolute;
+            inset: 2px;
+            pointer-events: none;
+        }
+
+        /* Essential Structural UI Classes Remaining Same for Game Logic Binding */
+        .screen {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 0.15s ease;
+        }
+
+        .screen.hidden, .hidden {
+            opacity: 0;
+            pointer-events: none !important;
+        }
+        
+        .screen.hidden * { pointer-events: none !important; }
+
+        .sfwin {
+            pointer-events: auto;
+            display: flex;
+            flex-direction: column;
+            background: var(--black);
+            box-shadow: var(--shadow-window-body);
+        }
+
+        .sfwin>.window-head { gap: 16px; }
+        .sfwin-body {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            padding: 16px;
+        }
+
+        .gray { color: var(--light-gray); }
+        .muted { color: #a0a0a0; }
+        .title-card { width: min(620px, calc(100% - 32px)); }
+        .title-row {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: flex-start;
+            gap: 16px;
+            width: 100%;
+        }
+
+        .hero-title {
+            font-family: chevyray-oeuf, chevyray, monospace;
+            font-weight: normal;
+            font-size: 48px;
+            line-height: 1.1;
+            color: var(--blue);
+            text-shadow: 2px 2px 0px var(--orange);
+        }
+
+        .url-row { display: flex; gap: 8px; }
+        .input-wrap {
+            flex: 1;
+            min-width: 0;
+            display: flex;
+            align-items: center;
+            gap: 2px;
+            padding: 4px 8px 6px;
+            background: var(--pure-black);
+            box-shadow: var(--shadow-input);
+            cursor: text;
+        }
+
+        .input-wrap:focus-within { box-shadow: var(--shadow-blue); }
+        .input-wrap .proto { color: var(--light-gray); padding-top: 4px; }
+        .input-wrap input {
+            flex: 1;
+            min-width: 0;
+            outline: none;
+            padding-top: 4px;
+        }
+        .input-wrap input::placeholder { color: var(--light-gray); }
+
+        .keys-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px 16px;
+            color: #b392f0;
+        }
+        .keys-row>span {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        kbd {
+            font: inherit;
+            font-size: 14px;
+            color: var(--white);
+            background: var(--medium-gray);
+            padding: 2px 5px 0;
+            box-shadow: var(--shadow-input);
+        }
+    </style>
+    
+    <!-- Game Application Bundle -->
+    <script type="module" crossorigin src="/_app/index-kn8s4wqt.js"></script>
+</head>
+
+<body>
+    <script>
+        if (matchMedia("(pointer: coarse)").matches && navigator.maxTouchPoints > 0) document.body.classList.add("touch");
+    </script>
+    <div class="app">
+        <div class="window">
+            <header class="window-head">
+                <div class="head-left">
+                    <h1 class="head-title">
+                        <a class="name" href="/">Destroy Any Website</a>
+                        <span class="by">Neon Edition</span>
+                    </h1>
+                </div>
+                <div class="head-right">
+                    <button class="btn" type="button" id="btn-share"><span><p>Share</p></span></button>
+                    <a class="btn" id="btn-about" href="/about"><span><p>About</p></span></a>
+                </div>
+            </header>
+            <div class="window-body">
+                <div class="stage" id="stage">
+                    <canvas id="game"></canvas>
+                    <div id="ui">
+                        <section id="title" class="screen">
+                            <div class="title-row">
+                                <div class="sfwin title-card">
+                                    <div class="window-head">
+                                        <p>Initialization Protocol</p>
+                                    </div>
+                                    <div class="sfwin-body">
+                                        <h1 class="hero-title">System Override</h1>
+                                        <p class="muted">Enter target domain to initiate destruction protocol.</p>
+                                        <form id="urlform" class="url-row" autocomplete="off">
+                                            <label class="input-wrap">
+                                                <span class="proto">https://</span>
+                                                <input id="url" name="url" spellcheck="false" value="en.wikipedia.org/wiki/Stick_figure" placeholder="target.com" aria-label="Website address" />
+                                            </label>
+                                            <button class="btn" type="submit"><span><p>Execute</p></span></button>
+                                        </form>
+                                        <div class="picks col">
+                                            <p>Network Features</p>
+                                            <div class="pick-row">
+                                                <button class="btn" type="button" id="mp-open"><span><p>Connect to Grid</p></span></button>
+                                            </div>
+                                        </div>
+                                        <p class="err" id="err"></p>
+                                        <div class="keys-row">
+                                            <span class="kb-only"><kbd>A</kbd><kbd>D</kbd><p>move</p></span>
+                                            <span class="kb-only"><kbd>SPACE</kbd><p>jump</p></span>
+                                            <span class="kb-only"><kbd>CLICK</kbd><p>fire</p></span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
